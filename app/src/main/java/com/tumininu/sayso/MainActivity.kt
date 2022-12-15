@@ -10,8 +10,8 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.rivinsurance.riv.presentation.ui.base.components.BottomNavigationGraph
 import com.tumininu.sayso.ui.base.BottomNavigationBar
+import com.tumininu.sayso.ui.base.BottomNavigationGraph
 import com.tumininu.sayso.ui.theme.SaysoTheme
 
 class MainActivity : ComponentActivity() {
