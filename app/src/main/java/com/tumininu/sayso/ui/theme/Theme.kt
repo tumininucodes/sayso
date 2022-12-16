@@ -41,7 +41,7 @@ fun SaysoTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable 
         DarkColorPalette
     } else {
         systemUiController.setStatusBarColor(color = White, darkIcons = true)
-        systemUiController.setNavigationBarColor(color = Dark)
+        systemUiController.setNavigationBarColor(color = White)
         LightColorPalette
     }
 
