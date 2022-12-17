@@ -30,14 +30,17 @@ fun NowPlaying(modifier: Modifier) {
 
         Spacer(modifier = modifier.height(45.dp))
 
-        Image(
-            painter = painterResource(id = R.drawable.ic_round_keyboard_arrow_down_24),
-            contentDescription = "back",
-            contentScale = ContentScale.FillWidth,
-            modifier = modifier
-                .align(Alignment.Start)
-                .padding(start = 16.dp),
-        )
+        Box(modifier.fillMaxWidth()) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_round_keyboard_arrow_down_24),
+                contentDescription = "back",
+                contentScale = ContentScale.FillWidth,
+                modifier = modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 16.dp),
+            )
+            Text(text = "Now playing", modifier.align(Alignment.Center))
+        }
 
         Spacer(modifier = modifier.height(50.dp))
 
@@ -57,9 +60,11 @@ fun NowPlaying(modifier: Modifier) {
             )
         }
 
+        Spacer(modifier = modifier.height(30.dp))
+
         Text(text = "Book Title", style = MaterialTheme.typography.h6)
 
-        Text(text = "Click outside the bottom sheet to hide it",
+        Text(text = "time",
             style = MaterialTheme.typography.body1)
 
 //        Spacer(modifier = modifier.weight(1f))
