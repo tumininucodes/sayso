@@ -25,7 +25,7 @@ fun NetworkImage(url: String?, width: Dp, height: Dp, modifier: Modifier) {
 
     DisposableEffect(url) {
 
-        val picasso = Picasso.get()
+    val picasso = Picasso.get()
         val target = object : Target {
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
                 drawable = placeHolderDrawable

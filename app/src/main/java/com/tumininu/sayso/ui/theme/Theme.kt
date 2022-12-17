@@ -6,6 +6,7 @@ import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
@@ -36,12 +37,12 @@ private val LightColorPalette = lightColors(
 fun SaysoTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val systemUiController = rememberSystemUiController()
     val colors = if (darkTheme) {
-        systemUiController.setStatusBarColor(color = Dark, darkIcons = false)
-        systemUiController.setNavigationBarColor(color = Dark)
+        systemUiController.setStatusBarColor(color = Transparent, darkIcons = false)
+        systemUiController.setNavigationBarColor(color = Transparent)
         DarkColorPalette
     } else {
-        systemUiController.setStatusBarColor(color = White, darkIcons = true)
-        systemUiController.setNavigationBarColor(color = White)
+        systemUiController.setStatusBarColor(color = Transparent, darkIcons = true)
+        systemUiController.setNavigationBarColor(color = Transparent)
         LightColorPalette
     }
 
