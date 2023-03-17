@@ -1,5 +1,7 @@
 package com.tumininu.sayso
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -20,12 +22,15 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.navigationBarsWithImePadding
 import com.google.accompanist.insets.statusBarsPadding
+import com.itextpdf.text.pdf.PdfReader
+import com.itextpdf.text.pdf.parser.PdfTextExtractor
 import com.tumininu.sayso.ui.base.BottomNavigationBar
 import com.tumininu.sayso.ui.base.BottomNavigationGraph
 import com.tumininu.sayso.ui.nowplaying.NowPlaying
 import com.tumininu.sayso.ui.theme.LightOrange
 import com.tumininu.sayso.ui.theme.SaysoTheme
 import kotlinx.coroutines.launch
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,8 +42,32 @@ class MainActivity : ComponentActivity() {
                     // A surface container using the 'background' color from the theme
                     Surface(modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colors.background) {
-                        Base()
+                        Base(activity = this)
                     }
+                }
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            0 -> {
+                try {
+                    var parsedText = ""
+                    val reader = PdfReader(data.)
+                    val n: Int = reader.numberOfPages
+                    for (i in 0 until n) {
+                        parsedText =
+                            """
+            $parsedText${PdfTextExtractor.getTextFromPage(reader, i + 1).trim { it <= ' ' }}
+            
+            """.trimIndent() //Extracting the content from the different pages
+                    }
+                    println(parsedText)
+                    reader.close()
+                } catch (e: Exception) {
+                    println(e)
                 }
             }
         }
@@ -47,7 +76,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Base(modifier: Modifier = Modifier) {
+fun Base(modifier: Modifier = Modifier, activity: Activity) {
     val navController = rememberNavController()
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -71,7 +100,7 @@ fun Base(modifier: Modifier = Modifier) {
                 colorFilter = ColorFilter.tint(Color.White))
         }
     }) {
-        BottomNavigationGraph(navController = navController)
+        BottomNavigationGraph(activity = activity, navController = navController)
     }
 
 

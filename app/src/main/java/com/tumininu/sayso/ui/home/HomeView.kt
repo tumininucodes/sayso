@@ -1,11 +1,11 @@
 package com.tumininu.sayso.ui.home
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import android.app.Activity
+import android.content.Intent
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,12 +15,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat.startActivityForResult
 import com.tumininu.sayso.R
 import com.tumininu.sayso.ui.theme.LightGrey
 import com.tumininu.sayso.ui.theme.NotSelected
+import com.tumininu.sayso.ui.theme.NowPlayingBg
 
 @Composable
-fun HomeView(modifier: Modifier = Modifier) {
+fun HomeView(activity: Activity, modifier: Modifier = Modifier) {
     Column(modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())) {
@@ -53,6 +55,30 @@ fun HomeView(modifier: Modifier = Modifier) {
 
         Spacer(modifier = modifier.height(10.dp))
 
+        Card(backgroundColor = NowPlayingBg,
+            modifier = modifier
+                .padding(20.dp)
+                .background(NowPlayingBg, shape = RoundedCornerShape(50))
+                .fillMaxWidth()
+                .clickable {
+                    val fileIntent = Intent(
+                        Intent.ACTION_OPEN_DOCUMENT
+                    ).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = "*/*"
+                    }
+                    startActivityForResult(activity, fileIntent, 0, null)
+                }) {
+            Column(modifier
+                .padding(20.dp)
+                .fillMaxWidth()) {
+                Image(painter = painterResource(id = R.drawable.ic_round_add_24),
+                    contentDescription = "add", modifier.align(Alignment.CenterHorizontally))
+                Spacer(modifier = modifier.height(10.dp))
+                Text(text = "Open a book", modifier.align(Alignment.CenterHorizontally))
+            }
+        }
+
         Text(text = "Continue Reading",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
@@ -71,4 +97,5 @@ fun HomeView(modifier: Modifier = Modifier) {
 
 
     }
+
 }
