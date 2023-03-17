@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.navigationBarsWithImePadding
@@ -29,12 +31,19 @@ import com.tumininu.sayso.ui.base.BottomNavigationGraph
 import com.tumininu.sayso.ui.nowplaying.NowPlaying
 import com.tumininu.sayso.ui.theme.LightOrange
 import com.tumininu.sayso.ui.theme.SaysoTheme
+import com.tumininu.sayso.ui.viewmodel.BaseViewModel
+import com.tumininu.sayso.utils.StorageUtil
 import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
+    private lateinit var viewModel: BaseViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewModel = ViewModelProvider(this,
+            ViewModelProvider.NewInstanceFactory())[BaseViewModel::class.java]
+
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             ProvideWindowInsets {
@@ -42,20 +51,24 @@ class MainActivity : ComponentActivity() {
                     // A surface container using the 'background' color from the theme
                     Surface(modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colors.background) {
-                        Base(activity = this)
+                        Base(activity = this, viewModel = viewModel)
                     }
                 }
             }
         }
+
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             0 -> {
                 try {
                     var parsedText = ""
-                    val reader = PdfReader(data.)
+                    val filePath =
+                        data?.data?.let { StorageUtil().getFile(applicationContext, it)?.path }
+                    val reader = PdfReader(filePath)
                     val n: Int = reader.numberOfPages
                     for (i in 0 until n) {
                         parsedText =
@@ -65,6 +78,7 @@ class MainActivity : ComponentActivity() {
             """.trimIndent() //Extracting the content from the different pages
                     }
                     println(parsedText)
+                    viewModel.openedDocument.postValue(true)
                     reader.close()
                 } catch (e: Exception) {
                     println(e)
@@ -76,7 +90,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Base(modifier: Modifier = Modifier, activity: Activity) {
+fun Base(modifier: Modifier = Modifier, activity: Activity, viewModel: BaseViewModel) {
     val navController = rememberNavController()
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -103,6 +117,18 @@ fun Base(modifier: Modifier = Modifier, activity: Activity) {
         BottomNavigationGraph(activity = activity, navController = navController)
     }
 
+    viewModel.openedDocument.observe(activity as LifecycleOwner) {
+        if (it) {
+            coroutineScope.launch {
+                sheetState.animateTo(ModalBottomSheetValue.Expanded)
+            }
+            viewModel.openedDocument.postValue(false)
+        }
+    }
+
+    if (sheetState.isVisible) {
+        viewModel.openedDocument.removeObservers(activity)
+    }
 
     BackHandler(sheetState.isVisible) {
         coroutineScope.launch { sheetState.animateTo(ModalBottomSheetValue.Hidden) }
