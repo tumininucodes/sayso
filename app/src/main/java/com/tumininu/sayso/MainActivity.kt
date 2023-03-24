@@ -3,6 +3,8 @@ package com.tumininu.sayso
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -34,10 +36,18 @@ import com.tumininu.sayso.ui.theme.SaysoTheme
 import com.tumininu.sayso.ui.viewmodel.BaseViewModel
 import com.tumininu.sayso.utils.StorageUtil
 import kotlinx.coroutines.launch
+import java.util.*
 
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
+
     private lateinit var viewModel: BaseViewModel
+    private var tts: TextToSpeech? = null
+    private lateinit var reader: PdfReader
+    var parsedText = ""
+    var pageNumber = 1
+    val pageList = mutableListOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -57,6 +67,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        tts = TextToSpeech(this, this)
+
     }
 
     @Deprecated("Deprecated in Java")
@@ -65,27 +77,79 @@ class MainActivity : ComponentActivity() {
         when (requestCode) {
             0 -> {
                 try {
-                    var parsedText = ""
                     val filePath =
                         data?.data?.let { StorageUtil().getFile(applicationContext, it)?.path }
-                    val reader = PdfReader(filePath)
+                    reader = PdfReader(filePath)
                     val n: Int = reader.numberOfPages
+
                     for (i in 0 until n) {
-                        parsedText =
-                            """
-            $parsedText${PdfTextExtractor.getTextFromPage(reader, i + 1).trim { it <= ' ' }}
-            
-            """.trimIndent() //Extracting the content from the different pages
+                        pageList.add(PdfTextExtractor.getTextFromPage(reader, i + 1) + " \n")
+//                            parsedText =
+//                                parsedText + PdfTextExtractor.getTextFromPage(reader, i + 1) + " \n"
                     }
-                    println(parsedText)
+
+
+                    speakOut()
+
+//                    lifecycleScope.launch {
+//
+//                    }
+                    viewModel.currentRead = parsedText
                     viewModel.openedDocument.postValue(true)
                     reader.close()
+
+
                 } catch (e: Exception) {
                     println(e)
                 }
             }
         }
     }
+
+    override fun onInit(p0: Int) {
+        if (p0 == TextToSpeech.SUCCESS) {
+            val result = tts?.setLanguage(Locale.US)
+
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                println("The Language not supported!")
+            } else {
+            }
+
+//            speakOut()
+        }
+    }
+
+    private fun speakOut() {
+        tts?.speak(pageList.first(), TextToSpeech.QUEUE_FLUSH, null, "")
+        tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(p0: String?) {
+                println("started")
+                println(pageList[pageNumber])
+            }
+
+            override fun onDone(p0: String?) {
+                println("finished")
+                pageNumber += 1
+                println(pageNumber)
+                println("got here")
+                tts?.speak(pageList[pageNumber], TextToSpeech.QUEUE_FLUSH, null, "")
+            }
+
+            override fun onError(p0: String?) {
+                println("error")
+            }
+
+        })
+    }
+
+    override fun onDestroy() {
+        // Shutdown TTS when
+        // activity is destroyed
+        tts?.stop()
+        tts?.shutdown()
+        super.onDestroy()
+    }
+
 }
 
 @OptIn(ExperimentalMaterialApi::class)

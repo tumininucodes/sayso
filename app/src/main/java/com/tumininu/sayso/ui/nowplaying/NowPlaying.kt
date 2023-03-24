@@ -67,6 +67,7 @@ fun NowPlaying(modifier: Modifier) {
         Text(text = "time",
             style = MaterialTheme.typography.body1)
 
+
 //        Spacer(modifier = modifier.weight(1f))
     }
 

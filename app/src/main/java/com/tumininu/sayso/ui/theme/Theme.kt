@@ -37,9 +37,9 @@ private val LightColorPalette = lightColors(
 fun SaysoTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val systemUiController = rememberSystemUiController()
     val colors = if (darkTheme) {
-        systemUiController.setStatusBarColor(color = Transparent, darkIcons = false)
+        systemUiController.setStatusBarColor(color = Transparent, darkIcons = true)
         systemUiController.setNavigationBarColor(color = Transparent)
-        DarkColorPalette
+        LightColorPalette
     } else {
         systemUiController.setStatusBarColor(color = Transparent, darkIcons = true)
         systemUiController.setNavigationBarColor(color = Transparent)
